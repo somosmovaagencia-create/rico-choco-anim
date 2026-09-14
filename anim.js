@@ -51,7 +51,7 @@
 
   var CSS =
     '#rico-anim{position:relative;height:620vh;background:#140b07;margin:0 0 8px}' +
-    '#rico-anim .ra-stage{position:sticky;top:var(--ra-top,0px);height:calc(100vh - var(--ra-top,0px));height:calc(100svh - var(--ra-top,0px));overflow:hidden;background:var(--ra-bg,#140b07);transition:background-color .6s}' +
+    '#rico-anim .ra-stage{position:sticky;top:var(--ra-top,0px);height:calc(100vh - var(--ra-top,0px));height:calc(100svh - var(--ra-top,0px));overflow:hidden;background:#140b07}' +
     '#rico-anim canvas{position:absolute;inset:0;width:100%;height:100%;display:block}' +
     '#rico-anim .ra-shade{position:absolute;left:0;right:0;top:0;height:58%;pointer-events:none;transition:opacity .5s}' +
     '#rico-anim .ra-shade-dark{background:linear-gradient(180deg,rgba(15,8,5,.82) 0%,rgba(15,8,5,.55) 45%,rgba(15,8,5,0) 100%)}' +
@@ -87,6 +87,8 @@
     '.ra-bar p{margin:0;flex:1;font:500 14px/1.25 Inter,system-ui,sans-serif;color:#35251e}' +
     '.ra-bar strong{display:block;font:800 17px/1.2 Inter,system-ui,sans-serif;color:#176445}' +
     '.ra-bar button{min-height:46px;padding:0 22px;border:0;border-radius:10px;background:#176445;color:#fff;font:700 15px/1 Inter,system-ui,sans-serif;cursor:pointer}' +
+    'body.ra-bar-on .js-btn-fixed-bottom{bottom:84px!important;transition:bottom .35s}' +
+    '@media (min-width:900px){.ra-bar{left:auto;right:96px;bottom:16px;border-radius:14px;padding:10px 12px 10px 18px;width:360px}}' +
     '@keyframes ra-bob{0%,100%{transform:translateY(0) rotate(45deg)}50%{transform:translateY(5px) rotate(45deg)}}' +
     '@media (min-width:900px){' +
     '#rico-anim .ra-beat{right:auto;width:44%;top:50%;padding:0 0 0 6vw;transform:translateY(calc(-50% + 18px))}' +
@@ -94,7 +96,7 @@
     '#rico-anim .ra-shade{display:none}' +
     '#rico-anim .ra-sub,#rico-anim .ra-steps li{font-size:17px}' +
     '}' +
-    '@media (prefers-reduced-motion:reduce){#rico-anim .ra-hint span{animation:none}#rico-anim .ra-stage{transition:none}}';
+    '@media (prefers-reduced-motion:reduce){#rico-anim .ra-hint span{animation:none}}';
 
   // ---------- DOM ----------
   var style = document.createElement('style');
@@ -218,12 +220,27 @@
       dx = (W - dw) / 2; dy = (H - dh) / 2;
     }
     ctx.drawImage(img, dx, dy, dw, dh);
+    if (desktop) {
+      // funde as bordas do vídeo com o fundo
+      var f = Math.round(48 * dpr);
+      [[dx, dx + f], [dx + dw, dx + dw - f]].forEach(function (e) {
+        var g = ctx.createLinearGradient(e[0], 0, e[1], 0);
+        g.addColorStop(0, bgColor); g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(Math.min(e[0], e[1]), 0, f, H);
+      });
+    }
     lastDrawn = i;
+    lastBg = bgColor;
   }
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   var FADE = 0.035;
-  var BG = { dark: '#140b07', light: '#efe4d6' };
+  var DARK = [20, 11, 7], LIGHT = [239, 228, 214];
+  var bgColor = 'rgb(20,11,7)', lastBg = '';
+  function mix(t) {
+    return 'rgb(' + DARK.map(function (c, k) { return Math.round(c + (LIGHT[k] - c) * t); }).join(',') + ')';
+  }
 
   function update() {
     var rect = section.getBoundingClientRect();
@@ -241,10 +258,13 @@
       if (p >= b.from - 0.02) activeBeat = i;
     });
     var theme = BEATS[activeBeat].theme;
-    shadeDark.style.opacity = theme === 'dark' ? 1 : 0;
-    shadeLight.style.opacity = theme === 'light' ? 1 : 0;
-    stage.style.setProperty('--ra-bg', BG[theme]);
-    dotsWrap.style.color = theme === 'dark' ? '#fff8ef' : '#35251e';
+    // escuro → claro acontece no intervalo sem texto entre as cenas 2 e 3
+    var t = clamp((p - 0.435) / 0.05, 0, 1);
+    bgColor = mix(t);
+    stage.style.backgroundColor = bgColor;
+    shadeDark.style.opacity = 1 - t;
+    shadeLight.style.opacity = t;
+    dotsWrap.style.color = t < 0.5 ? '#fff8ef' : '#35251e';
     dots.forEach(function (d, i) { d.classList.toggle('is-on', i === activeBeat); });
     hint.style.opacity = p < 0.06 ? 1 : 0;
 
@@ -252,9 +272,11 @@
       ? keyFrames[Math.min(activeBeat, keyFrames.length - 1)]
       : Math.round(clamp(p / FRAME_END, 0, 1) * (N - 1));
     current = target;
-    if (target !== lastDrawn) draw(target);
+    if (target !== lastDrawn || (desktop && bgColor !== lastBg)) draw(target);
 
-    bar.classList.toggle('is-on', p > 0.04 && rect.bottom > window.innerHeight * 0.6 && !(p > 0.86));
+    var barOn = p > 0.04 && p < 0.86 && rect.bottom > window.innerHeight * 0.6;
+    bar.classList.toggle('is-on', barOn);
+    document.body.classList.toggle('ra-bar-on', barOn);
   }
 
   var ticking = false;
