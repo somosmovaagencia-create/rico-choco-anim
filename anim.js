@@ -87,7 +87,6 @@
     '.ra-bar p{margin:0;flex:1;font:500 14px/1.25 Inter,system-ui,sans-serif;color:#35251e}' +
     '.ra-bar strong{display:block;font:800 17px/1.2 Inter,system-ui,sans-serif;color:#176445}' +
     '.ra-bar button{min-height:46px;padding:0 22px;border:0;border-radius:10px;background:#176445;color:#fff;font:700 15px/1 Inter,system-ui,sans-serif;cursor:pointer}' +
-    'body.ra-bar-on .js-btn-fixed-bottom{bottom:84px!important;transition:bottom .35s}' +
     '@media (min-width:900px){.ra-bar{left:auto;right:96px;bottom:16px;border-radius:14px;padding:10px 12px 10px 18px;width:360px}}' +
     '@keyframes ra-bob{0%,100%{transform:translateY(0) rotate(45deg)}50%{transform:translateY(5px) rotate(45deg)}}' +
     '@media (min-width:900px){' +
@@ -275,9 +274,17 @@
     if (target !== lastDrawn || (desktop && bgColor !== lastBg)) draw(target);
 
     var barOn = p > 0.04 && p < 0.86 && rect.bottom > window.innerHeight * 0.6;
-    bar.classList.toggle('is-on', barOn);
-    document.body.classList.toggle('ra-bar-on', barOn);
+    if (barOn !== barState) {
+      barState = barOn;
+      bar.classList.toggle('is-on', barOn);
+      // o tema reescreve as classes do body; ajusta o botão do WhatsApp direto
+      [].forEach.call(document.querySelectorAll('.js-btn-fixed-bottom'), function (el) {
+        el.style.transition = 'bottom .35s';
+        el.style.bottom = barOn ? (bar.offsetHeight + 12) + 'px' : '';
+      });
+    }
   }
+  var barState = false;
 
   var ticking = false;
   function onScroll() {
