@@ -5,7 +5,7 @@
 
   var VARIANTS = {
     367440811: { dir: 'kling', frames: 182 },
-    367440830: { dir: 'seedance', frames: 0 }
+    367440830: { dir: 'wan', frames: 180 }
   };
   var BASE = 'https://cdn.jsdelivr.net/gh/somosmovaagencia-create/rico-choco-anim@main/';
   var KIT_URL = '/produtos/kit-3-unidades-choco-quente-rico-160g-x8a2s/';
