@@ -191,13 +191,8 @@
 
   var dpr = 1, cw = 0, ch = 0, desktop = false;
   function resize() {
-    var head = document.querySelector('.js-head-main');
-    var top = 0;
-    if (head) {
-      var pos = getComputedStyle(head).position;
-      if (pos === 'sticky' || pos === 'fixed') top = Math.round(head.getBoundingClientRect().height);
-    }
-    section.style.setProperty('--ra-top', top + 'px');
+    // o cabeçalho vira sobreposição (fixed), então a animação ocupa a tela toda
+    section.style.setProperty('--ra-top', '0px');
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     cw = stage.clientWidth; ch = stage.clientHeight;
     canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
@@ -289,11 +284,37 @@
   }
   var barState = false;
 
+  // ---------- Cabeçalho ----------
+  // Some durante a animação (imersão); desce de novo ao rolar para cima.
+  var head = document.querySelector('.js-head-main');
+  var headShown = true, lastY = window.pageYOffset;
+  if (head) {
+    head.style.setProperty('position', 'fixed', 'important');
+    head.style.setProperty('top', '0', 'important');
+    head.style.left = '0'; head.style.right = '0'; head.style.width = '100%';
+    head.style.zIndex = '60';
+    head.style.transition = 'transform .35s ease';
+  }
+  function setHead(show) {
+    if (!head || show === headShown) return;
+    headShown = show;
+    head.style.transform = show ? '' : 'translateY(-100%)';
+  }
+  function updateHead() {
+    var y = window.pageYOffset, dy = y - lastY;
+    if (Math.abs(dy) < 6 && y > 60) return;
+    lastY = y;
+    if (y <= 60) setHead(false);
+    else if (dy > 0) setHead(false);
+    else setHead(true);
+  }
+  setHead(false);
+
   var ticking = false;
   function onScroll() {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(function () { ticking = false; update(); });
+    requestAnimationFrame(function () { ticking = false; update(); updateHead(); });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', resize);
