@@ -4,7 +4,7 @@
   'use strict';
 
   var VARIANTS = {
-    349115962: { dir: 'wan', frames: 180 }, // Choco Quente Rico - 160g (produto real)
+    349115962: { dir: 'wan', frames: 180, hideHead: true }, // Choco Quente Rico - 160g (produto real): sem cabeçalho na página toda
     367440811: { dir: 'kling', frames: 182 },
     367440830: { dir: 'wan', frames: 180 }
   };
@@ -302,8 +302,9 @@
   }
   function updateHead() {
     var y = window.pageYOffset, dy = y - lastY;
-    // durante a animação o cabeçalho fica sempre escondido, mesmo rolando para cima
-    if (section.getBoundingClientRect().bottom > 0) { lastY = y; setHead(false); return; }
+    // durante a animação o cabeçalho fica sempre escondido, mesmo rolando para cima;
+    // com hideHead, fica escondido na página inteira
+    if (cfg.hideHead || section.getBoundingClientRect().bottom > 0) { lastY = y; setHead(false); return; }
     if (Math.abs(dy) < 6) return;
     lastY = y;
     setHead(dy < 0);
