@@ -4,6 +4,7 @@
   'use strict';
 
   var VARIANTS = {
+    349115962: { dir: 'wan', frames: 180 }, // Choco Quente Rico - 160g (produto real)
     367440811: { dir: 'kling', frames: 182 },
     367440830: { dir: 'wan', frames: 180 }
   };
