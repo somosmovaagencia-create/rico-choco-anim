@@ -28,7 +28,7 @@
       '<p class="ra-sub">Mistura para chocolate quente, pronta em minutos.</p>' },
     { from: 0.23, to: 0.43, theme: 'dark', html:
       '<h2 class="ra-title">O sabor<br>começa aqui.</h2>' +
-      '<ul class="ra-chips"><li>160 g</li><li>8 porções de 20 g</li><li>Não contém glúten</li></ul>' },
+      '<ul class="ra-chips"><li>160 g</li><li>Serve até 8 porções</li><li>Não contém glúten</li></ul>' },
     { from: 0.49, to: 0.68, theme: 'light', html:
       '<h2 class="ra-title">Do preparo à<br>primeira xícara.</h2>' +
       '<ol class="ra-steps">' +
@@ -36,9 +36,9 @@
       '<li>Leve ao fogo, mexendo até iniciar a fervura.</li>' +
       '<li>Desligue o fogo e sirva quente.</li></ol>' },
     { from: 0.72, to: 0.84, theme: 'light', html:
-      '<p class="ra-eyebrow">Ingredientes</p>' +
-      '<h2 class="ra-title ra-title-sm">Açúcar, leite em pó, amido de milho, cacau em pó e sal refinado.</h2>' +
-      '<p class="ra-sub">Alérgicos: pode conter traços de derivados de soja.</p>' },
+      '<p class="ra-eyebrow">Da Rico para a sua casa</p>' +
+      '<h2 class="ra-title">Feito na Bahia<br>desde 1996.</h2>' +
+      '<p class="ra-sub">Da nossa fábrica em Valença para as suas tardes frias, cafés da manhã e pausas em família.</p>' },
     { from: 0.88, to: 1.5, theme: 'light', offer: true, html:
       '<h2 class="ra-title">Sua próxima pausa<br>tem sabor.</h2>' +
       '<div class="ra-offer">' +
