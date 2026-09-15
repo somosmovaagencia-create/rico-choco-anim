@@ -302,11 +302,11 @@
   }
   function updateHead() {
     var y = window.pageYOffset, dy = y - lastY;
-    if (Math.abs(dy) < 6 && y > 60) return;
+    // durante a animação o cabeçalho fica sempre escondido, mesmo rolando para cima
+    if (section.getBoundingClientRect().bottom > 0) { lastY = y; setHead(false); return; }
+    if (Math.abs(dy) < 6) return;
     lastY = y;
-    if (y <= 60) setHead(false);
-    else if (dy > 0) setHead(false);
-    else setHead(true);
+    setHead(dy < 0);
   }
   setHead(false);
 
