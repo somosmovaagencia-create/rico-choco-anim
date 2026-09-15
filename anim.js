@@ -327,7 +327,9 @@
   // duração fixa; depois da última cena a página volta à rolagem normal.
   // para exatamente quando o texto da cena seguinte termina de aparecer (entrada + fade)
   var STOPS = BEATS.map(function (b, i) { return i === 0 ? 0 : b.from + FADE + 0.004; });
-  var SNAP_MS = reduced ? 0 : 700;
+  // duração da transição; ?snap=900 na URL permite testar outros valores sem publicar
+  var snapParam = parseInt((location.search.match(/[?&]snap=(\d+)/) || [])[1], 10);
+  var SNAP_MS = reduced ? 0 : (snapParam >= 200 && snapParam <= 3000 ? snapParam : 950);
   var snapping = false, lastInput = 0;
 
   function points() {
@@ -338,7 +340,7 @@
       exit: Math.round(top + section.offsetHeight)
     };
   }
-  function ease(t) { return 1 - Math.pow(1 - t, 3); } // sai rápido e freia no fim
+  function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; } // acelera e freia suave
   function animateTo(y) {
     var from = window.pageYOffset, dist = y - from, t0 = null;
     if (!SNAP_MS || Math.abs(dist) < 2) { window.scrollTo(0, y); return; }
