@@ -325,8 +325,9 @@
   // ---------- Rolagem por cenas ----------
   // Cada gesto (toque, roda, trackpad, teclado) leva à cena seguinte/anterior com
   // duração fixa; depois da última cena a página volta à rolagem normal.
-  var STOPS = [0, 0.33, 0.585, 0.78, 0.95];
-  var SNAP_MS = reduced ? 0 : 1100;
+  // para exatamente quando o texto da cena seguinte termina de aparecer (entrada + fade)
+  var STOPS = BEATS.map(function (b, i) { return i === 0 ? 0 : b.from + FADE + 0.004; });
+  var SNAP_MS = reduced ? 0 : 700;
   var snapping = false, lastInput = 0;
 
   function points() {
@@ -337,7 +338,7 @@
       exit: Math.round(top + section.offsetHeight)
     };
   }
-  function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function ease(t) { return 1 - Math.pow(1 - t, 3); } // sai rápido e freia no fim
   function animateTo(y) {
     var from = window.pageYOffset, dist = y - from, t0 = null;
     if (!SNAP_MS || Math.abs(dist) < 2) { window.scrollTo(0, y); return; }
