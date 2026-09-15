@@ -61,19 +61,20 @@
     '#rico-anim .ra-dark{color:#fff8ef}' +
     '#rico-anim .ra-light{color:#35251e}' +
     '#rico-anim .ra-eyebrow{font:600 12px/1.2 Montserrat,Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px;opacity:.85}' +
-    '#rico-anim .ra-title{font:700 38px/1.05 "Playfair Display",Lora,Georgia,serif;margin:0 0 12px;color:inherit;letter-spacing:-.01em}' +
-    '#rico-anim .ra-title-sm{font-size:26px;line-height:1.2}' +
+    '#rico-anim .ra-title{font:700 clamp(30px,9.6vw,40px)/1.05 "Playfair Display",Lora,Georgia,serif;margin:0 0 12px;color:inherit;letter-spacing:-.01em}' +
+    '#rico-anim .ra-title-sm{font-size:clamp(21px,6.4vw,26px);line-height:1.2}' +
     '#rico-anim .ra-sub{font:400 15px/1.45 Inter,system-ui,sans-serif;margin:0;max-width:30ch;opacity:.9}' +
     '#rico-anim .ra-chips{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-wrap:wrap;gap:8px}' +
-    '#rico-anim .ra-chips li{font:600 13px/1 Inter,system-ui,sans-serif;padding:9px 12px;border-radius:999px;background:rgba(255,248,239,.14);border:1px solid rgba(255,248,239,.35);backdrop-filter:blur(4px)}' +
-    '#rico-anim .ra-steps{counter-reset:ra;list-style:none;padding:0;margin:14px 0 0;max-width:34ch}' +
-    '#rico-anim .ra-steps li{counter-increment:ra;position:relative;padding:0 0 10px 38px;font:500 15px/1.4 Inter,system-ui,sans-serif}' +
+    '#rico-anim .ra-chips li{font:600 13px/1 Inter,system-ui,sans-serif;padding:9px 12px;border-radius:999px;background:rgba(20,11,7,.55);border:1px solid rgba(255,248,239,.4);backdrop-filter:blur(4px)}' +
+    '#rico-anim .ra-steps{counter-reset:ra;list-style:none;padding:12px 12px 4px;margin:12px 26px 0 -4px;max-width:36ch;background:rgba(250,244,236,.9);backdrop-filter:blur(6px);border-radius:14px}' +
+    '#rico-anim .ra-steps li{counter-increment:ra;position:relative;padding:0 0 8px 36px;font:500 15px/1.4 Inter,system-ui,sans-serif}' +
     '#rico-anim .ra-steps li:before{content:counter(ra);position:absolute;left:0;top:-2px;width:26px;height:26px;border-radius:50%;background:#176445;color:#fff;font:700 13px/26px Inter,system-ui,sans-serif;text-align:center}' +
-    '#rico-anim .ra-offer{margin-top:6px}' +
+    '#rico-anim .ra-beat-offer{bottom:0;display:flex;flex-direction:column;justify-content:space-between;padding-bottom:calc(16px + env(safe-area-inset-bottom))}' +
+    '#rico-anim .ra-offer{background:#fffaf3;border-radius:16px;padding:14px 16px 8px;box-shadow:0 12px 32px rgba(20,11,7,.25);color:#35251e}' +
     '#rico-anim .ra-offer-name{font:500 14px/1.3 Inter,system-ui,sans-serif;margin:0 0 2px}' +
     '#rico-anim .ra-offer-price{font:800 34px/1.1 Inter,system-ui,sans-serif;color:#176445;margin:0}' +
     '#rico-anim .ra-offer-inst{font:400 13px/1.3 Inter,system-ui,sans-serif;margin:2px 0 12px;color:#555}' +
-    '#rico-anim .ra-buy{display:block;width:100%;max-width:340px;min-height:52px;border:0;border-radius:10px;background:#176445;color:#fff;font:700 16px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;cursor:pointer}' +
+    '#rico-anim .ra-buy{display:block;width:100%;min-height:52px;border:0;border-radius:10px;background:#176445;color:#fff;font:700 16px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;cursor:pointer}' +
     '#rico-anim .ra-buy:focus-visible{outline:3px solid #f0b43c;outline-offset:2px}' +
     '#rico-anim .ra-kit{display:inline-block;margin-top:12px;font:600 14px/1 Inter,system-ui,sans-serif;color:#35251e;text-decoration:underline;text-underline-offset:3px;padding:8px 0}' +
     '#rico-anim .ra-hint{position:absolute;left:0;right:0;bottom:22px;text-align:center;color:#fff8ef;font:500 13px/1 Inter,system-ui,sans-serif;letter-spacing:.04em;transition:opacity .4s}' +
@@ -94,6 +95,7 @@
     '#rico-anim .ra-title{font-size:56px}#rico-anim .ra-title-sm{font-size:34px}' +
     '#rico-anim .ra-shade{display:none}' +
     '#rico-anim .ra-sub,#rico-anim .ra-steps li{font-size:17px}' +
+    '#rico-anim .ra-beat-offer{bottom:auto;display:block;padding-bottom:0}#rico-anim .ra-offer{max-width:380px;margin-top:8px}#rico-anim .ra-steps{background:none;backdrop-filter:none;padding:0;margin:14px 0 0}' +
     '}' +
     '@media (prefers-reduced-motion:reduce){#rico-anim .ra-hint span{animation:none}}';
 
@@ -108,7 +110,7 @@
   var html = '<div class="ra-stage"><canvas aria-hidden="true"></canvas>' +
     '<div class="ra-shade ra-shade-dark"></div><div class="ra-shade ra-shade-light"></div>';
   BEATS.forEach(function (b, i) {
-    html += '<div class="ra-beat ra-' + b.theme + '" data-i="' + i + '">' + b.html + '</div>';
+    html += '<div class="ra-beat ra-' + b.theme + (b.offer ? ' ra-beat-offer' : '') + '" data-i="' + i + '">' + b.html + '</div>';
   });
   html += '<div class="ra-dots" aria-hidden="true">' + BEATS.map(function () { return '<i></i>'; }).join('') + '</div>' +
     '<p class="ra-hint">Role para descobrir<span></span></p><div class="ra-loader"></div></div>';
