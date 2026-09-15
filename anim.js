@@ -321,5 +321,88 @@
   window.addEventListener('resize', resize);
   // preço/parcelas podem mudar ao trocar variante/quantidade
   if (window.MutationObserver && nativePrice) new MutationObserver(syncOffer).observe(detail, { subtree: true, childList: true, characterData: true });
+
+  // ---------- Rolagem por cenas ----------
+  // Cada gesto (toque, roda, trackpad, teclado) leva à cena seguinte/anterior com
+  // duração fixa; depois da última cena a página volta à rolagem normal.
+  var STOPS = [0, 0.33, 0.585, 0.78, 0.95];
+  var SNAP_MS = reduced ? 0 : 1100;
+  var snapping = false, lastInput = 0;
+
+  function points() {
+    var top = section.getBoundingClientRect().top + window.pageYOffset;
+    var travel = section.offsetHeight - stage.offsetHeight;
+    return {
+      stops: STOPS.map(function (s) { return Math.round(top + travel * s); }),
+      exit: Math.round(top + section.offsetHeight)
+    };
+  }
+  function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function animateTo(y) {
+    var from = window.pageYOffset, dist = y - from, t0 = null;
+    if (!SNAP_MS || Math.abs(dist) < 2) { window.scrollTo(0, y); return; }
+    snapping = true;
+    document.documentElement.style.scrollBehavior = 'auto';
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var k = Math.min(1, (ts - t0) / SNAP_MS);
+      window.scrollTo(0, Math.round(from + dist * ease(k)));
+      if (k < 1) requestAnimationFrame(step);
+      else setTimeout(function () { snapping = false; }, 120);
+    }
+    requestAnimationFrame(step);
+  }
+  // true = o gesto foi tratado aqui (e o navegador não deve rolar)
+  function handle(dir) {
+    var y = window.pageYOffset, pt = points(), s = pt.stops, i;
+    if (y > pt.exit + 4) return false;                 // abaixo da animação: rolagem normal
+    if (y >= pt.exit - 4) {                            // no início do bloco do produto
+      if (dir < 0) { if (!snapping) animateTo(s[s.length - 1]); return true; }
+      return false;
+    }
+    if (snapping) return true;
+    var cur = 0;
+    for (i = 0; i < s.length; i++) if (y >= s[i] - 4) cur = i;
+    var between = y > s[cur] + 4;                      // parado entre duas cenas
+    if (dir > 0) animateTo(cur + 1 < s.length ? s[cur + 1] : pt.exit);
+    else if (between) animateTo(s[cur]);
+    else if (cur > 0) animateTo(s[cur - 1]);
+    else return y > 4 ? (animateTo(s[0]), true) : false;
+    return true;
+  }
+
+  window.addEventListener('wheel', function (e) {
+    if (Math.abs(e.deltaY) < 3 || e.ctrlKey) return;
+    var now = Date.now(), fresh = now - lastInput > 220;   // ignora a inércia do trackpad
+    lastInput = now;
+    var y = window.pageYOffset, pt = points();
+    if (y > pt.exit + 4 || (y >= pt.exit - 4 && e.deltaY > 0)) return;
+    e.preventDefault();
+    if (fresh && !snapping) handle(e.deltaY > 0 ? 1 : -1);
+  }, { passive: false });
+
+  var touchY = null, touchUsed = false;
+  window.addEventListener('touchstart', function (e) {
+    touchY = e.touches[0].clientY; touchUsed = false;
+  }, { passive: true });
+  window.addEventListener('touchmove', function (e) {
+    if (touchY === null) return;
+    var dy = touchY - e.touches[0].clientY;
+    var y = window.pageYOffset, pt = points();
+    if (y > pt.exit + 4 || (y >= pt.exit - 4 && dy > 0)) return;
+    if (e.cancelable) e.preventDefault();
+    if (!touchUsed && Math.abs(dy) > 14) { touchUsed = true; handle(dy > 0 ? 1 : -1); }
+  }, { passive: false });
+  window.addEventListener('touchend', function () { touchY = null; }, { passive: true });
+
+  window.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) || '';
+    if (/INPUT|TEXTAREA|SELECT/.test(tag) || e.target.isContentEditable) return;
+    var dir = { ArrowDown: 1, PageDown: 1, ' ': 1, ArrowUp: -1, PageUp: -1 }[e.key];
+    if (e.key === ' ' && e.shiftKey) dir = -1;
+    if (!dir) return;
+    if (handle(dir)) e.preventDefault();
+  });
+
   resize();
 })();
